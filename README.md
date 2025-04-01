@@ -18,4 +18,4 @@ MicroPython app for showing AQI (Air Quality Index) and current temperature. Dat
 ### Configuration
 
 * `secrets.py` for WiFi credentials and waqi.info token
-* `config.py` for off time and time zone offset
+* `config.py` for off time and time zone offset, and for wi-fi country selection
