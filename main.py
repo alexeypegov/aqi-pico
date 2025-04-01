@@ -3,7 +3,7 @@ import time
 from secrets import AQI_TOKEN, PASSWORD, SSID
 
 import ntptime
-from machine import Timer
+from machine import Timer, reset
 from uio import StringIO
 
 from config import OFF_HOUR, ON_HOUR, TIME_ZONE_OFFSET_SEC, WIFI_COUNTRY
@@ -34,12 +34,14 @@ def write_stacktrace(e):
     f.close()
 
 
-def local_time(secs=time.time(), utc_offset_sec=TIME_ZONE_OFFSET_SEC):
+def local_time(secs=None, utc_offset_sec=TIME_ZONE_OFFSET_SEC):
+    if secs is None:
+        secs = time.time()
     return secs + utc_offset_sec
 
 
-def format_secs(secs=local_time()):
-    t = time.localtime(secs)
+def format_secs(secs=None):
+    t = time.localtime(local_time())
     return f"{t[0]:04d}-{t[1]:02d}-{t[2]:02d} {t[3]:02d}:{t[4]:02d}:{t[5]:02d}"
 
 
@@ -75,6 +77,7 @@ def sync_time():
 
     try:
         ntptime.settime()
+        time.sleep(1)
         (year, month, day, hour, minute, second, _, _) = time.localtime()
         last_time_sync = local_time()
         log(
@@ -191,11 +194,14 @@ def do_update(
         return
 
     if should_sync_data() or should_sync_time():
-        (ok, _) = wifi.with_connection(
-            sync_all, on_retry=on_retry, max_retries=retries, log=log
-        )
-        if not ok:
-            log("unable to connect to wifi, will retry in next cycle...")
+        try:
+            (ok, _) = wifi.with_connection(
+                sync_all, on_retry=on_retry, max_retries=retries, log=log
+            )
+            if not ok:
+                log("unable to connect to wifi, will retry in next cycle...")
+        except Exception as ex:
+            handle_exception(ex)
 
     if data is None:
         return
@@ -211,9 +217,12 @@ def do_update(
 
 
 def start(screen_update_secs=20):
-    global crashed
+    global crashed, data
 
     do_update(retries=10, on_retry=show_count)
+
+    if data is None:
+        reset()
 
     timer = Timer(-1)
     timer.init(

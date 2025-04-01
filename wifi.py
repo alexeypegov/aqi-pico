@@ -4,6 +4,7 @@ from random import randint
 import network
 import requests
 import rp2
+import ubinascii
 
 WLAN_STATUSES = {
     -3: "WLAN_BADAUTH: Authentication failed",
@@ -53,12 +54,25 @@ class Wifi:
 
                 if not wlan.active():
                     log("wifi not active, activating...")
-                    wlan.config(pm=0xA11140)  # turn off wireless power saving
                     wlan.active(True)
-                    time.sleep(2)
+                    wlan.config(pm=0xA11140)  # turn off wireless power saving
+                    time.sleep(1)
 
-                for n in wlan.scan():
-                    log(f"network: {n[0]}")
+                networks = wlan.scan()
+                for n in networks:
+                    if n[0].decode() == self.ssid:
+                        ssid = n[0].decode()
+                        bssid = ubinascii.hexlify(n[1], ":").decode()
+                        ch = n[2]
+                        rssi = n[3]
+                        auth = hex(n[4])
+                        vis = hex(n[5])
+                        # 0: open, 1: WEP, 2: WPA-PSK, 3: WPA2-PSK, 4: WPA/WPA2-PSK, 5: WPA2 ENTERPRISE, 6: WPA3-PSK, 7: WPA2/3 PSK, 8: WAPI-PSK, 9: OWE
+                        log(
+                            "wifi network found {:s} | {:s} | {:2d} | {:3d} | {:s} | {:s}".format(
+                                ssid, bssid, ch, rssi, auth, vis
+                            )
+                        )
 
                 wlan.connect(self.ssid, self.password)
                 max_wait = timeout
