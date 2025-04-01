@@ -2,6 +2,10 @@
 
 MicroPython app for showing AQI (Air Quality Index) and current temperature. Data is fetched from https://api.waqi.info for the current IP address.
 
+### Image
+
+![aqi_pico](https://github.com/user-attachments/assets/0794848d-66a6-4367-8202-140e3634b63c)
+
 ### Hardware
 
 * [Raspberry Pico 2 W](https://www.raspberrypi.com/products/raspberry-pi-pico-2/)
