@@ -4,7 +4,7 @@ MicroPython app for showing AQI (Air Quality Index) and current temperature. Dat
 
 ### Image
 
-![aqi_pico](https://github.com/user-attachments/assets/0794848d-66a6-4367-8202-140e3634b63c)
+![aqi_pico](https://github.com/user-attachments/assets/79ed36c1-6001-4137-af24-85933f32e107)
 
 ### Hardware
 
